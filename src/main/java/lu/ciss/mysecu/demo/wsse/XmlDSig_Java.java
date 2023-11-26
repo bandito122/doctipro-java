@@ -1,6 +1,6 @@
 /*
  * XmlDSig_Java.java
- * Date de création: 29 juin 2015
+ * Date de crï¿½ation: 29 juin 2015
  * Auteur: u156gm
  *
  * Copyright (c) 2015 by CISS
@@ -50,7 +50,7 @@ import org.w3c.dom.Document;
 import lu.ciss.mysecu.demo.XmlTools;
 
 /**
- * Implémentation de la signature XML d'un message SOAP à travers les API de Java.
+ * Implï¿½mentation de la signature XML d'un message SOAP ï¿½ travers les API de Java.
  * Notamment JAXWS et Java XML Signature API.
  *
  * ATTENTION:
@@ -63,7 +63,7 @@ import lu.ciss.mysecu.demo.XmlTools;
 public class XmlDSig_Java {
 
     /**
-     * QName d'une entête WS-Security
+     * QName d'une entï¿½te WS-Security
      */
     public static final QName WSSE = new QName(
             "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd", "Security");
@@ -75,31 +75,31 @@ public class XmlDSig_Java {
             "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd", "Id", "wsu");
 
     /**
-     * Ajout d'une entête WS-Security dans le message SOAP.
-     * Aucune entête n'est insérée si une telle entête WS-Security existe déjà.
+     * Ajout d'une entï¿½te WS-Security dans le message SOAP.
+     * Aucune entï¿½te n'est insï¿½rï¿½e si une telle entï¿½te WS-Security existe dï¿½jï¿½.
      *
-     * @param soapMessage le message SOAP à modifier
-     * @return le message SOAP avec entête WS-Security
+     * @param soapMessage le message SOAP ï¿½ modifier
+     * @return le message SOAP avec entï¿½te WS-Security
      */
     public static final SOAPMessage addWSSEHeader(SOAPMessage soapMessage) {
         if (soapMessage == null) {
             throw new IllegalArgumentException("SOAP message must not be NULL.");
         }
         try {
-            // 1.) récupérer l'envelope du message SOAP
+            // 1.) rï¿½cupï¿½rer l'envelope du message SOAP
             SOAPEnvelope envelope = soapMessage.getSOAPPart().getEnvelope();
-            // 2.) récupérer l'entête du message SOAP
+            // 2.) rï¿½cupï¿½rer l'entï¿½te du message SOAP
             SOAPHeader header = envelope.getHeader();
-            // 3.) récupérer l'élément WS-Security
+            // 3.) rï¿½cupï¿½rer l'ï¿½lï¿½ment WS-Security
             Iterator<?> wsseElements = header.getChildElements(WSSE);
             if (wsseElements.hasNext()) {
-                // il existe déjà une entête WS-Security
+                // il existe dï¿½jï¿½ une entï¿½te WS-Security
                 // pas besoin d'en ajouter une nouvelle
-                // en production il faut également vérifier qu'il s'agit d'une entête
-                // étant destinée au bon "actor" ou "role"
+                // en production il faut ï¿½galement vï¿½rifier qu'il s'agit d'une entï¿½te
+                // ï¿½tant destinï¿½e au bon "actor" ou "role"
                 return soapMessage;
             }
-            // il n'existe pas encore d'entête WS-Security
+            // il n'existe pas encore d'entï¿½te WS-Security
             // il faut alors ajouter une nouvelle
             header.addChildElement(header.addHeaderElement(WSSE));
             return soapMessage;
@@ -110,15 +110,15 @@ public class XmlDSig_Java {
 
     /**
      * Signature du body (payload) du message SOAP.
-     * Le signature est automatiquement ajoutée dans une entête WS-Security.
+     * Le signature est automatiquement ajoutï¿½e dans une entï¿½te WS-Security.
      *
-     * @param soapMessage le message SOAP à signer
+     * @param soapMessage le message SOAP ï¿½ signer
      * @param keyStorePath le chemin vers le keystore
      * @param keyStoreType le type du keystore
      * @param keyStorePassword le mot de passe du keystore
-     * @param keyAlias l'alias de la clef privée pour la signature
+     * @param keyAlias l'alias de la clef privï¿½e pour la signature
      *
-     * @return le message SOAP signé
+     * @return le message SOAP signï¿½
      */
     public static final SOAPMessage signBody(SOAPMessage soapMessage, final String keyStorePath,
             final String keyStoreType,
@@ -126,8 +126,8 @@ public class XmlDSig_Java {
 
         try {
             SOAPBody body = soapMessage.getSOAPPart().getEnvelope().getBody();
-            // 1.) déterminer si le body contient déjà un identifiant WSU
-            // si non, générer un nouveau identifiant
+            // 1.) dï¿½terminer si le body contient dï¿½jï¿½ un identifiant WSU
+            // si non, gï¿½nï¿½rer un nouveau identifiant
             String wsuID = body.getAttributeNS(WSU.getNamespaceURI(), WSU.getLocalPart());
             if (wsuID == null || wsuID.isEmpty()) {
                 SecureRandom random = new SecureRandom();
@@ -145,17 +145,17 @@ public class XmlDSig_Java {
     }
 
     /**
-     * Signature d'un message SOAP. Seuls les référénces indiqués seront incluses dans la signature.
-     * Supportés sont les types de référence suivantes: wsu:Id et xml:ID.
+     * Signature d'un message SOAP. Seuls les rï¿½fï¿½rï¿½nces indiquï¿½s seront incluses dans la signature.
+     * Supportï¿½s sont les types de rï¿½fï¿½rence suivantes: wsu:Id et xml:ID.
      *
-     * @param soapMessage le message SOAP à signer
-     * @param references la liste des références internes à signer
+     * @param soapMessage le message SOAP ï¿½ signer
+     * @param references la liste des rï¿½fï¿½rences internes ï¿½ signer
      * @param keyStorePath le chemin vers le keystore
      * @param keyStoreType le type du keystore
      * @param keyStorePassword le mot de passe du keystore
-     * @param keyAlias l'alias de clef privée
+     * @param keyAlias l'alias de clef privï¿½e
      *
-     * @return le message SOAP signé
+     * @return le message SOAP signï¿½
      */
     public static final SOAPMessage signMessage(SOAPMessage soapMessage, final String[] references,
             final String keyStorePath,
@@ -169,7 +169,7 @@ public class XmlDSig_Java {
             // 1.) initialiser la factory de signature
             XMLSignatureFactory sigFactory = XMLSignatureFactory.getInstance();
 
-            // 2.) créer et ajouter les références à signer
+            // 2.) crï¿½er et ajouter les rï¿½fï¿½rences ï¿½ signer
             Transform transform = sigFactory.newTransform("http://www.w3.org/2001/10/xml-exc-c14n#",
                     (ExcC14NParameterSpec) null);
             List<Reference> _references = new ArrayList<Reference>();
@@ -181,12 +181,12 @@ public class XmlDSig_Java {
                 _references.add(ref);
             }
 
-            // 3.) créer l'élément SignedInfo
+            // 3.) crï¿½er l'ï¿½lï¿½ment SignedInfo
             SignedInfo signedInfo = sigFactory.newSignedInfo(sigFactory.newCanonicalizationMethod(
                     CanonicalizationMethod.EXCLUSIVE, (ExcC14NParameterSpec) null), sigFactory
                     .newSignatureMethod(SignatureMethod.RSA_SHA1, null), _references);
 
-            // 4.) charger le keystore et créer les informations de clefs
+            // 4.) charger le keystore et crï¿½er les informations de clefs
             KeyStore ks = KeyStore.getInstance(keyStoreType);
             FileInputStream fis = new FileInputStream(keyStorePath);
             ks.load(fis, keyStorePassword.toCharArray());
@@ -196,14 +196,14 @@ public class XmlDSig_Java {
             KeyInfo keyInfo = kif.newKeyInfo(Collections.singletonList(kif.newX509Data(Collections
                     .singletonList(certificate))));
 
-            // 5.) créer l'objet de signature
+            // 5.) crï¿½er l'objet de signature
             XMLSignature sig = sigFactory.newXMLSignature(signedInfo, keyInfo);
 
-            // 6.) créer le contexte de signature
+            // 6.) crï¿½er le contexte de signature
             DOMSignContext signatureContext = new DOMSignContext(privateKey, wsseHeader);
             signatureContext.putNamespacePrefix(XMLSignature.XMLNS, "ds");
 
-            // 7.) générer la signature
+            // 7.) gï¿½nï¿½rer la signature
             sig.sign(signatureContext);
 
             return _soapMessage;
@@ -213,14 +213,14 @@ public class XmlDSig_Java {
     }
 
     /**
-     * Génération d'une signature d'un message SOAP
-     * args[0]: chemin vers le keystore de la clef privée
+     * Gï¿½nï¿½ration d'une signature d'un message SOAP
+     * args[0]: chemin vers le keystore de la clef privï¿½e
      * args[1]: type du keystore
      * args[2]: le mot de passe du keystore
-     * args[3]: l'alias de la clef privée dans le keystore
-     * args[4]: l'alias du chemin vers le message SOAP à signer
+     * args[3]: l'alias de la clef privï¿½e dans le keystore
+     * args[4]: l'alias du chemin vers le message SOAP ï¿½ signer
      *
-     * @param args les arguments à fournir
+     * @param args les arguments ï¿½ fournir
      */
     public static void main(String args[]) {
         // chargement du message SOAP depuis un fichier
