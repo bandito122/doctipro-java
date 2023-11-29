@@ -1,4 +1,4 @@
-package lu.mipit;
+package lu.mipit.test;
 
 import java.io.*;
 import java.security.*;

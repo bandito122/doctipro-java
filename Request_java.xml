@@ -1,0 +1,41 @@
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/">
+    <soapenv:Header>
+        <wsse:Security xmlns:wsse="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-secext-1.0.xsd">
+            <wsse:BinarySecurityToken
+                    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                    EncodingType="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-soap-message-security-1.0#Base64Binary"
+                    wsu:Id="BST-d342a279-dcc2-4d42-9fcb-f467f1435fc8">
+                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
+            </wsse:BinarySecurityToken>
+            <wsu:Timestamp
+                    xmlns:wsu="http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd"
+                    wsu:Id="TS-e1bc7042-f119-49b9-a461-2634e4ac416a">
+                <wsu:Created>2023-11-29T06:18:53.099+01:00</wsu:Created>
+                <wsu:Expires>2023-11-29T06:19:03.099+01:00</wsu:Expires>
+            </wsu:Timestamp>
+        </wsse:Security>
+    </soapenv:Header>
+    <soapenv:Body>
+        <saml2p:AuthnRequest xmlns:saml2p="urn:oasis:names:tc:SAML:2.0:protocol"
+                             AssertionConsumerServiceURL="https://ws.mysecu.lu:7443"
+                             Destination="https://www-integration.esante.lu/auth/realms/organization/ideosso/protocol/saml"
+                             ID="saml-ebde7311-5d70-4177-9673-e77003a7e97d" IssueInstant="2023-11-29T05:18:53.298Z"
+                             ProtocolBinding="urn:oasis:names:tc:SAML:2.0:bindings:SOAP" Version="2.0">
+            <saml2:Issuer xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">https://ws.mysecu.lu:7443</saml2:Issuer>
+            <saml2p:Extensions>
+                <saml2:Attribute xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion" Name="psEHealthID"
+                                 NameFormat="urn:oasis:names:tc:SAML:2.0:attrname-format:unspecified">
+                    <saml2:AttributeValue>2854201475</saml2:AttributeValue>
+                </saml2:Attribute>
+            </saml2p:Extensions>
+            <saml2:Subject xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+                <saml2:SubjectConfirmation Method="urn:oasis:names:tc:SAML:2.0:cm:bearer"/>
+            </saml2:Subject>
+            <saml2p:RequestedAuthnContext Comparison="minimum">
+                <saml2:AuthnContextClassRef xmlns:saml2="urn:oasis:names:tc:SAML:2.0:assertion">
+                    urn:oasis:names:tc:SAML:2.0:ac:classes:X509
+                </saml2:AuthnContextClassRef>
+            </saml2p:RequestedAuthnContext>
+        </saml2p:AuthnRequest>
+    </soapenv:Body>
+</soapenv:Envelope>
