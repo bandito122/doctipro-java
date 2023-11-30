@@ -172,7 +172,6 @@ public class Main {
             bodyContent = body.getUnknownXMLObjects().get(0);
         }
 
-
         Document signedDocument = XmlDSig_OpenSAML.signMessage(enveloppe, new XMLObject[]{enveloppe.getBody(),ts,binarySecurityToken}, keyStorePath, keyStoreType, keyStorePassword, privateKey_alias);
         // Afficher le document signé
         System.out.println("Document signé:");

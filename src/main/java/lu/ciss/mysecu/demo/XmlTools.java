@@ -1,6 +1,6 @@
 /*
  * XmlTools.java
- * Date de création: 15 juin 2015
+ * Date de crï¿½ation: 15 juin 2015
  * Auteur: u156gm
  *
  * Copyright (c) 2015 by CISS
@@ -48,10 +48,10 @@ import org.w3c.dom.Element;
 public final class XmlTools {
 
     /**
-     * Retourne l'élément XML sous forme textuelle
+     * Retourne l'ï¿½lï¿½ment XML sous forme textuelle
      *
      * @param element
-     * @return objet String de l'élément XML
+     * @return objet String de l'ï¿½lï¿½ment XML
      */
     public static final String toPrettyString(Element element) {
         try {
@@ -70,12 +70,28 @@ public final class XmlTools {
             return null;
         }
     }
+    public static final String toOneLineString(Element element) {
+        try {
+            TransformerFactory transFactory = TransformerFactory.newInstance();
+            Transformer transformer = transFactory.newTransformer();
+            StringWriter buffer = new StringWriter();
+            transformer.setOutputProperty(OutputKeys.OMIT_XML_DECLARATION, "yes");
+            transformer.setOutputProperty(OutputKeys.INDENT, "no"); // Pas d'indentation
+            transformer.transform(new DOMSource(element), new StreamResult(buffer));
+            String str = buffer.toString();
+            return str;
+        } catch (TransformerException e) {
+            e.printStackTrace();
+            return null;
+        }
+    }
+
 
     /**
      * Charge un document XML via DOM depuis un fichier.
      *
      * @param pathToFile chemin vers le fichier XML
-     * @return document XML parsé via DOM
+     * @return document XML parsï¿½ via DOM
      */
     public static final Document loadFromFile(final String pathToFile) {
         try {
@@ -89,7 +105,7 @@ public final class XmlTools {
     }
 
     /**
-     * Créer un nouveau document et y ajouter l'élément fourni.
+     * Crï¿½er un nouveau document et y ajouter l'ï¿½lï¿½ment fourni.
      *
      * @param element
      * @return
@@ -110,7 +126,7 @@ public final class XmlTools {
     /**
      * Convertir un document XML en message SOAP 1.1 ou 1.2
      *
-     * @param xmlDocument le document XML parsé sous forme DOM
+     * @param xmlDocument le document XML parsï¿½ sous forme DOM
      * @return l'encapsulation Java d'un message SOAP
      */
     public static final SOAPMessage convertToSoapMessage(final Document xmlDocument) {

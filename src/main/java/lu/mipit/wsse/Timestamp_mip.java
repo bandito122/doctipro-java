@@ -1,6 +1,7 @@
 package lu.mipit.wsse;
 
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
 import org.joda.time.format.ISODateTimeFormat;
 import org.opensaml.Configuration;
 import org.opensaml.ws.wssecurity.Created;
@@ -24,7 +25,7 @@ public class Timestamp_mip {
                 .getBuilder(Timestamp.ELEMENT_NAME)
                 .buildObject(Timestamp.ELEMENT_NAME);
 
-        DateTime currentTime = new DateTime();
+        DateTime currentTime = new DateTime(DateTimeZone.UTC);
         String currentTimeString = currentTime.toString(ISODateTimeFormat.dateTime());
         String expirationTimeString = currentTime.plusSeconds(ttlSeconds).toString(ISODateTimeFormat.dateTime());
 

@@ -175,6 +175,8 @@ public class HTTPClient {
         // Transformation du message XML en données binaires
         // Attention: veiller à ne pas modifier la syntaxe XML,
         // histoire de ne pas invalider la signature XML éventuelle
+        String soapAction = "http://www.oasis-open.org/committees/securityhttp://www.oasis-open.org/committees/security";
+        urlConnection.setRequestProperty("SOAPAction", soapAction);
         ByteArrayOutputStream bos = new ByteArrayOutputStream();
         DOMSource source = new DOMSource(xml);
         StreamResult result = new StreamResult(bos);

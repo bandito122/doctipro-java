@@ -22,6 +22,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.xml.namespace.QName;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 
@@ -30,11 +31,14 @@ import org.opensaml.DefaultBootstrap;
 import org.opensaml.common.impl.SecureRandomIdentifierGenerator;
 import org.opensaml.ws.soap.soap11.Envelope;
 import org.opensaml.ws.soap.soap11.Header;
+import org.opensaml.ws.wssecurity.BinarySecurityToken;
 import org.opensaml.ws.wssecurity.Security;
 import org.opensaml.ws.wssecurity.util.WSSecurityHelper;
 import org.opensaml.xml.ConfigurationException;
 import org.opensaml.xml.XMLObject;
+import org.opensaml.xml.XMLObjectBuilderFactory;
 import org.opensaml.xml.io.UnmarshallingException;
+import org.opensaml.xml.schema.XSAny;
 import org.opensaml.xml.security.Criteria;
 import org.opensaml.xml.security.CriteriaSet;
 import org.opensaml.xml.security.credential.KeyStoreCredentialResolver;
@@ -45,15 +49,16 @@ import org.opensaml.xml.signature.Signature;
 import org.opensaml.xml.signature.SignatureConstants;
 import org.opensaml.xml.signature.Signer;
 import org.opensaml.xml.signature.URIContentReference;
+import org.opensaml.xml.util.AttributeMap;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-
+import org.opensaml.xml.schema.impl.XSAnyBuilder;
 import lu.ciss.mysecu.demo.XmlTools;
 
 /**
  * Outils pour la g�n�ration d'une signature XML
  * d'un message SOAP � travers les API d'OpenSAML.
- *
+ * <p>
  * ATTENTION:
  * IL S'AGIT D'UN PROJET DE DEMONSTRATION. IL EST DECONSEILE DE L'UTILISER EN PRODUCTION.
  *
@@ -78,16 +83,16 @@ public class XmlDSig_OpenSAML {
      * Signe le body d'un message SOAP � l'aide de l'API OpenSAML et ajoute la signature dans une ent�te WS-Security.
      * L'ent�te WS-Security est automatiquement g�n�r�e si elle n'existe pas encore.
      *
-     * @param messageSOAP le message SOAP � esInternes les r�f�rences vers les parties du message SOAP � signer
-     * @param keyStorePath le chemin vers le keystore
-     * @param keyStoreType le type du keystore
+     * @param messageSOAP      le message SOAP � esInternes les r�f�rences vers les parties du message SOAP � signer
+     * @param keyStorePath     le chemin vers le keystore
+     * @param keyStoreType     le type du keystore
      * @param keyStorePassword le mot de passe du keystore
-     * @param keyAlias l'alias de la clef priv�e
+     * @param keyAlias         l'alias de la clef priv�e
      * @return le message SOAP sign� avec la signature incluse dans l'ent�te WSSE
      */
     public static final Document signBody(final Document messageSOAP, final String keyStorePath,
-            final String keyStoreType,
-            final String keyStorePassword, final String keyAlias) {
+                                          final String keyStoreType,
+                                          final String keyStorePassword, final String keyAlias) {
         // 1.) conversion en objet d'OpenSAML
         XMLObject xmlObject;
         try {
@@ -97,7 +102,7 @@ public class XmlDSig_OpenSAML {
             throw new RuntimeException(e);
         }
         Envelope envelope = (Envelope) xmlObject;
-        return XmlDSig_OpenSAML.signMessage(envelope, new XMLObject[] {envelope.getBody()}, keyStorePath, keyStoreType,
+        return XmlDSig_OpenSAML.signMessage(envelope, new XMLObject[]{envelope.getBody()}, keyStorePath, keyStoreType,
                 keyStorePassword, keyAlias);
     }
 
@@ -105,17 +110,17 @@ public class XmlDSig_OpenSAML {
      * Signe le message SOAP � l'aide de l'API OpenSAML et ajoute la signature dans une ent�te WS-Security.
      * L'ent�te WS-Security est automatiquement g�n�r�e si elle n'existe pas encore.
      *
-     * @param envelope l'envelope du message SOAP
-     * @param references les �l�ments de l'envelope qui sont � signer
-     * @param keyStorePath le chemin vers le keystore
-     * @param keyStoreType le type du keystore
+     * @param envelope         l'envelope du message SOAP
+     * @param references       les �l�ments de l'envelope qui sont � signer
+     * @param keyStorePath     le chemin vers le keystore
+     * @param keyStoreType     le type du keystore
      * @param keyStorePassword le mot de passe du keystore
-     * @param keyAlias l'alias de la clef priv�e
+     * @param keyAlias         l'alias de la clef priv�e
      * @return le message SOAP sign� avec la signature incluse dans l'ent�te WSSE
      */
     public static final Document signMessage(Envelope envelope, XMLObject[] references, final String keyStorePath,
-            final String keyStoreType,
-            final String keyStorePassword, final String keyAlias) {
+                                             final String keyStoreType,
+                                             final String keyStorePassword, final String keyAlias) {
         try {
             // 1.) cr�er l'objet de signature OpenSAML
             Signature signature = (Signature) Configuration.getBuilderFactory()
@@ -136,8 +141,7 @@ public class XmlDSig_OpenSAML {
                 securityHeader = (Security) Configuration.getBuilderFactory().getBuilder(Security.ELEMENT_NAME)
                         .buildObject(Security.ELEMENT_NAME);
                 header.getUnknownXMLObjects().add(securityHeader);
-            }
-            else {
+            } else {
                 securityHeader = (Security) wsseHeaders.get(0);
             }
 
@@ -145,7 +149,7 @@ public class XmlDSig_OpenSAML {
             securityHeader.getUnknownXMLObjects().add(signature);
 
             // 3.) d�finir les algorithmes de signature et de normalisation
-            signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA1);
+            signature.setSignatureAlgorithm(SignatureConstants.ALGO_ID_SIGNATURE_RSA_SHA256);
             signature.setCanonicalizationAlgorithm(SignatureConstants.TRANSFORM_C14N_EXCL_OMIT_COMMENTS);
 
             // 4.) ajouter les r�f�rences internes et externes
@@ -161,16 +165,16 @@ public class XmlDSig_OpenSAML {
                         // il s'agit de la bonne pratique d'ajouter un prefix au nombre al�atoire
                         // le prefix indique le type de l'�l�ment identifi�
                         wsuID = referencedObject.getElementQName().getLocalPart() + srig.generateIdentifier();
+                        System.out.println("wsuiIDDD=" + wsuID);
                         WSSecurityHelper.addWSUId(referencedObject, wsuID);
-                    }
-                    else {
+                    } else {
                         WSSecurityHelper.addWSUId(referencedObject, wsuID);
                     }
                     // 5.c.) ajouter la r�f�rence vers l'identifiant WSU
                     URIContentReference uriContentReference = new URIContentReference("#" + wsuID);
                     // 5.d.) ajouter les algorithmes de transformations tels que demand� par mySecu
                     uriContentReference.getTransforms().add(SignatureConstants.TRANSFORM_C14N_EXCL_OMIT_COMMENTS);
-                    uriContentReference.setDigestAlgorithm(SignatureConstants.ALGO_ID_DIGEST_SHA1);
+                    uriContentReference.setDigestAlgorithm("http://www.w3.org/2001/04/xmlenc#sha256");
                     // 5.e.) ajouter la r�f�rence dans la signature
                     signature.getContentReferences().add(uriContentReference);
                 }
@@ -190,12 +194,56 @@ public class XmlDSig_OpenSAML {
             X509Credential credential = (X509Credential) resolver.resolveSingle(criteriaSet);
             signature.setSigningCredential(credential);
 
-            // 6.) ajouter les credentials dans KeyInfo
+//            // 6.) ajouter les credentials dans KeyInfo
+//            org.opensaml.xml.signature.KeyInfo keyInfo = (org.opensaml.xml.signature.KeyInfo) Configuration
+//                    .getBuilderFactory().getBuilder(org.opensaml.xml.signature.KeyInfo.DEFAULT_ELEMENT_NAME)
+//                    .buildObject(org.opensaml.xml.signature.KeyInfo.DEFAULT_ELEMENT_NAME);
+//            KeyInfoHelper.addCertificate(keyInfo, credential.getEntityCertificate());
+//
+//            signature.setKeyInfo(keyInfo);
+
+            // Récupérer le BinarySecurityToken à partir des références
+            BinarySecurityToken binarySecurityToken = null;
+            for (XMLObject reference : references) {
+                if (reference instanceof BinarySecurityToken) {
+                    binarySecurityToken = (BinarySecurityToken) reference;
+                    break;
+                }
+            }
+            // 6. Création du keyInfo
+            String binarySecurityTokenId = WSSecurityHelper.getWSUId(binarySecurityToken);
+            System.out.println("binarySecurityTokenId  =" + binarySecurityTokenId);
+
+            // Assurez-vous que binarySecurityTokenId n'est pas null
+            if (binarySecurityTokenId == null) {
+                throw new IllegalStateException("ID du BinarySecurityToken est introuvable");
+            }
+
+// Construire SecurityTokenReference et Reference
+            XMLObjectBuilderFactory builderFactory = Configuration.getBuilderFactory();
+            XSAnyBuilder xsAnyBuilder = (XSAnyBuilder) builderFactory.getBuilder(XSAny.TYPE_NAME);
+
+            XSAny securityTokenReference = xsAnyBuilder.buildObject("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd", "SecurityTokenReference", "wsse");
+            AttributeMap securityTokenReferenceAttributes = securityTokenReference.getUnknownAttributes();
+            securityTokenReferenceAttributes.put(new QName("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd", "Id", "wsu"), "STR-8A64C6552EAFBF716616951123186054");
+
+            XSAny reference = xsAnyBuilder.buildObject("http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-wssecurity-utility-1.0.xsd", "Reference", "wsse");
+            AttributeMap referenceAttributes = reference.getUnknownAttributes();
+            referenceAttributes.put(new QName("URI"), "#" + binarySecurityTokenId);
+            referenceAttributes.put(new QName("ValueType"), "http://docs.oasis-open.org/wss/2004/01/oasis-200401-wss-x509-token-profile-1.0#X509v3");
+
+            securityTokenReference.getUnknownXMLObjects().add(reference);
+
             org.opensaml.xml.signature.KeyInfo keyInfo = (org.opensaml.xml.signature.KeyInfo) Configuration
                     .getBuilderFactory().getBuilder(org.opensaml.xml.signature.KeyInfo.DEFAULT_ELEMENT_NAME)
                     .buildObject(org.opensaml.xml.signature.KeyInfo.DEFAULT_ELEMENT_NAME);
-            KeyInfoHelper.addCertificate(keyInfo, credential.getEntityCertificate());
+
+            keyInfo.getXMLObjects().add(securityTokenReference);
+
+            // Associer le KeyInfo à la Signature
             signature.setKeyInfo(keyInfo);
+
+
 
             // 7.) serialisation (marshal) de la structure DOM avant de signer
             Configuration.getMarshallerFactory().getMarshaller(envelope).marshall(envelope);
@@ -222,6 +270,7 @@ public class XmlDSig_OpenSAML {
      * args[1]: type du keystore
      * args[2]: le mot de passe du keystore
      * args[3]: l'alias de la clef priv�e dans le keystore
+     *
      * @param args
      * @throws UnmarshallingException
      */
